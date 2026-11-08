@@ -1,0 +1,72 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{{ post.img_url }}')">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <div class="post-heading">
+                    <h1>{{ post.title }}</h1>
+                    <h2 class="subheading">{{ post.subtitle }}</h2>
+
+                    <span class="meta">
+                        Posted by
+                        <a href="#">{{ post.author.name }}</a>
+                        on {{ post.date }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+
+                <!-- Full Blog Post Content -->
+                {{ post.body | safe }}
+
+                <hr>
+
+                <!-- Edit Post Button: Admin Only -->
+                {% if current_user.is_authenticated and current_user.id == 1 %}
+                <div class="clearfix">
+                    <a class="btn btn-primary float-right"
+                       href="{{ url_for('edit_post', post_id=post.id) }}">
+                        Edit Post
+                    </a>
+                </div>
+                {% endif %}
+
+                <hr>
+
+                <!-- Comments Area -->
+                <h3>Comments</h3>
+
+                <!-- Load and Configure CKEditor -->
+                {{ ckeditor.load() }}
+                {{ ckeditor.config(name='comment_text') }}
+
+                <!-- Comment Form -->
+                {% if current_user.is_authenticated %}
+                    {{ wtf.quick_form(
+                        comment_form,
+                        novalidate=True,
+                        button_map={"submit": "primary"}
+                    ) }}
+                {% else %}
+                    <p>
+                        <a href="{{ url_for('login') }}">Log in</a>
+                        to leave a comment.
+                    </p>
+                {% endif %}
+
+                <hr>
+
+                <!-- Display Saved Comments -->
+                <div class="comment">
+                    <ul class="commentList">
